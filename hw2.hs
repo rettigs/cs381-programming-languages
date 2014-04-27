@@ -11,6 +11,9 @@ data Cmd    = LD Int
             | ADD
             | MULT
             | DUP
+            | DEF String String
+            | CALL String
+            deriving (Read,Show)
 
 semCmd :: Cmd -> D
 semCmd (LD i) s     = Just (i:s)
@@ -25,3 +28,27 @@ sem [] s            = Just s
 sem (a:p) s         = case semCmd a s of
                         Just stack  -> sem p stack
                         Nothing     -> Nothing
+
+-- Exercise 2
+-- (a) Done; see Cmd data type above.
+-- (b)
+type State = (Macros,Stack)
+type Macros = [(String,Prog)]
+type D2 = State -> Maybe State
+
+semCmd2 :: Cmd -> D2
+semCmd2 (LD i) (m,s)    = Just (m,i:s)
+semCmd2 ADD (m,a:b:s)   = Just (m,(a+b):s)
+semCmd2 MULT (m,a:b:s)  = Just (m,(a*b):s)
+semCmd2 DUP (m,a:s)     = Just (m,a:a:s)
+semCmd2 (DEF n p) (m,s) = Just ((n,read p):m,s)
+semCmd2 (CALL n) (m,s)  = case lookup n m of
+                            Just p      -> sem2 p (m,s)
+                            otherwise   -> sem2 [] (m,s)
+semCmd2 _ _             = Nothing
+
+sem2 :: Prog -> D2
+sem2 [] (m,s)               = Just (m,s)
+sem2 (a:p) (m,s)            = case semCmd2 a (m,s) of
+                                Just state  -> sem2 p state
+                                otherwise   -> Nothing
