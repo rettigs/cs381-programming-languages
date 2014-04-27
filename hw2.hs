@@ -52,3 +52,27 @@ sem2 [] (m,s)           = Just (m,s)
 sem2 (a:p) (m,s)        = case semCmd2 a (m,s) of
                             Just state  -> sem2 p state
                             otherwise   -> Nothing
+
+-- Exercise 3
+data Cmd3   = Pen Mode
+            | MoveTo Int Int
+            | Seq Cmd3 Cmd3
+
+data Mode   = Up | Down
+
+type State3 = (Mode,Int,Int)
+type Line = (Int,Int,Int,Int)
+type Lines = [Line]
+
+semS :: Cmd3 -> State3 -> (State3,Lines)
+semS (Pen m') (m,x,y)       = ((m',x,y),[])
+semS (MoveTo x' y') (m,x,y) = case m of
+                                Up      -> (state,[])
+                                Down    -> (state,[(x,y,x',y')])
+                                where state = (m,x',y')
+semS (Seq a b) s            = let   ra = semS a s
+                                    rb = semS b (fst ra)
+                              in    (fst rb,snd ra++snd rb)
+
+sem' :: Cmd3 -> Lines
+sem' c = snd $ semS c (Up,0,0)
