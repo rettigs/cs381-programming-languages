@@ -24,7 +24,6 @@ semCmd _ _          = Nothing
 
 sem :: Prog -> D
 sem [] s            = Just s
---sem (a:p) s         = sem p (semCmd a s)
 sem (a:p) s         = case semCmd a s of
                         Just stack  -> sem p stack
                         Nothing     -> Nothing
@@ -36,6 +35,7 @@ type State = (Macros,Stack)
 type Macros = [(String,Prog)]
 type D2 = State -> Maybe State
 
+-- (c)
 semCmd2 :: Cmd -> D2
 semCmd2 (LD i) (m,s)    = Just (m,i:s)
 semCmd2 ADD (m,a:b:s)   = Just (m,(a+b):s)
@@ -48,7 +48,7 @@ semCmd2 (CALL n) (m,s)  = case lookup n m of
 semCmd2 _ _             = Nothing
 
 sem2 :: Prog -> D2
-sem2 [] (m,s)               = Just (m,s)
-sem2 (a:p) (m,s)            = case semCmd2 a (m,s) of
-                                Just state  -> sem2 p state
-                                otherwise   -> Nothing
+sem2 [] (m,s)           = Just (m,s)
+sem2 (a:p) (m,s)        = case semCmd2 a (m,s) of
+                            Just state  -> sem2 p state
+                            otherwise   -> Nothing
