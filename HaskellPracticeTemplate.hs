@@ -3,7 +3,7 @@ module HaskellPracticeTemplate where
 import Data.List (sort)
 
 
-type Bag a = [(a,Integer)]
+type Bag a = [(a,Int)]
 
 
 ins :: Eq a => a -> Bag a -> Bag a
@@ -34,10 +34,14 @@ subbag ((x,n):xs) ys = case lookup x ys of
 --                       where f = [n2 | (n1,n2) <- b', n1 == b1]
 
 isbag :: Eq a => Bag a -> Bag a -> Bag a
-isbag = undefined
+isbag ((av,an):as) b = isbag as b ++ case lookup av b of
+                        Just bn -> [(av,min an bn)]
+                        Nothing -> []
+isbag _ _ = []
 
 size :: Bag a -> Int
-size = undefined
+size []         = 0
+size ((_,n):xs) = n + size xs
 
 hist :: Bag Int -> String
 hist = undefined
