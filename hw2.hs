@@ -11,7 +11,7 @@ data Cmd    = LD Int
             | ADD
             | MULT
             | DUP
-            | DEF String String
+            | DEF String Prog
             | CALL String
             deriving (Read,Show)
 
@@ -41,7 +41,7 @@ semCmd2 (LD i) (m,s)    = Just (m,i:s)
 semCmd2 ADD (m,a:b:s)   = Just (m,(a+b):s)
 semCmd2 MULT (m,a:b:s)  = Just (m,(a*b):s)
 semCmd2 DUP (m,a:s)     = Just (m,a:a:s)
-semCmd2 (DEF n p) (m,s) = Just ((n,read p):m,s)
+semCmd2 (DEF n p) (m,s) = Just ((n,p):m,s)
 semCmd2 (CALL n) (m,s)  = case lookup n m of
                             Just p      -> sem2 p (m,s)
                             otherwise   -> sem2 [] (m,s)
