@@ -13,7 +13,7 @@ data Cmd    = LD Int
             | DUP
             | DEF String Prog
             | CALL String
-            deriving (Read,Show)
+            deriving Show
 
 semCmd :: Cmd -> D
 semCmd (LD i) s     = Just (i:s)
@@ -27,6 +27,9 @@ sem [] s            = Just s
 sem (a:p) s         = case semCmd a s of
                         Just stack  -> sem p stack
                         Nothing     -> Nothing
+initStack = []
+testProg = [LD 3, DUP, MULT, LD 2, DUP, ADD]
+testResult = sem testProg initStack
 
 -- Exercise 2
 -- (a) Done; see Cmd data type above.
@@ -53,12 +56,17 @@ sem2 (a:p) (m,s)        = case semCmd2 a (m,s) of
                             Just state  -> sem2 p state
                             otherwise   -> Nothing
 
+initState2 = ([],[])
+testProg2 = [DEF "SQR" [DUP, MULT], LD 3, CALL "SQR", LD 2, DUP, ADD]
+testResult2 = sem2 testProg2 initState2
+
 -- Exercise 3
 data Cmd3   = Pen Mode
             | MoveTo Int Int
             | Seq Cmd3 Cmd3
+            deriving Show
 
-data Mode   = Up | Down
+data Mode   = Up | Down deriving Show
 
 type State3 = (Mode,Int,Int)
 type Line = (Int,Int,Int,Int)
@@ -76,3 +84,6 @@ semS (Seq a b) s            = let   ra = semS a s
 
 sem' :: Cmd3 -> Lines
 sem' c = snd $ semS c (Up,0,0)
+
+testProg3 = Pen Down `Seq` MoveTo 2 1 `Seq` Pen Up `Seq` MoveTo 1 2 `Seq` Pen Down `Seq` MoveTo 3 3
+testResult3 = sem' testProg3
