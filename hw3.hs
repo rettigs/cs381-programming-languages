@@ -129,3 +129,26 @@ testRect1 = rect testShape1 -- Returns (2,2)
 testShape2 = TD (LR X X) (LR X (TD X X)) -- Some weird shape with a 2x3 bounding box
 testBbox2 = bbox testShape2 -- Returns (2,3)
 testRect2 = rect testShape2 -- Returns Nothing because the shape is not a rectangle
+
+-- Exercise 3
+-- (a)
+f x y = if null x then [y] else x
+g x y = if not (null x) then [] else [y]
+-- 1.   f :: [t] -> t -> [t]
+--      g :: [a] -> a1 -> [a1]
+-- 2/4. In f, x must be a list to be used in the null function.  Additionally, x and y need to contain and be the same type, respectively, since a list of that type derived from either of them can be returned.
+--      In g, x just needs to be a list (since it is used in the null function).  x does not need to be the same type as y because a list of type y will be returned regardless of what type x is.
+-- 3.   g has a more general type than f because x and y do not need to have types that match up, whereas f requires that x and y contain and be the same type, respectively.
+
+-- (b)
+--h :: [b] -> [(a, b)] -> [b]
+h x y = if null x then [head x] else [snd (head y)]
+-- This returns a type of h :: [t] -> [(a, t)] -> [t], which is the same (ignoring variable names).
+
+-- (c)
+--k :: (a -> b) -> ((a -> b) -> a) -> b
+k a b c d e = if True then b else k a b a b a
+-- This returns a type of k :: t1 -> t -> t1 -> t -> t1 -> t, which is functionally equivalent.
+
+-- (d)
+-- I was not able to define a function of type a -> b because there is no way to imply "a variable of any type except one other particular type"; it is only possible to imply matching types or specific types.
