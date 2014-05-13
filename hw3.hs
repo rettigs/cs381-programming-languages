@@ -83,3 +83,49 @@ testResult1 = semStatTC testProg1
 -- Returns Nothing due to type error (popping two elements from a stack of one)
 testProg2 = [LD 3, POP 2]
 testResult2 = semStatTC testProg2
+
+-- Exercise 2
+data Shape = X 
+           | TD Shape Shape
+           | LR Shape Shape
+           deriving Show
+
+type Pixel = (Int,Int)
+type Image = [Pixel]
+
+sem2 :: Shape -> Image 
+sem2 X           = [(1,1)]
+sem2 (LR s1 s2) = d1 ++ [(x+maxx d1,y) | (x,y) <- sem2 s2] 
+                 where d1 = sem2 s1
+sem2 (TD s1 s2) = d2 ++ [(x,y+maxy d2) | (x,y) <- sem2 s1] 
+                 where d2 = sem2 s2
+
+maxx :: [Pixel] -> Int
+maxx = maximum . map fst
+
+maxy :: [Pixel] -> Int
+maxy = maximum . map snd
+
+-- (a)
+type BBox = (Int, Int)
+
+bbox :: Shape -> BBox
+bbox s          = (maxx i,maxy i)
+                where i = sem2 s
+
+-- (b)
+-- (I determined that a shape is a rectangle if its bounding box is filled)
+rect :: Shape -> Maybe BBox
+rect s          | length i == (maxx i)*(maxy i) = Just $ bbox s
+                | otherwise                     = Nothing
+                where i = sem2 s
+
+-- These tests can be run easily to verify the correctness of the solution.
+
+testShape1 = TD (LR X X) (LR X X) -- A 2x2 square
+testBbox1 = bbox testShape1 -- Returns (2,2)
+testRect1 = rect testShape1 -- Returns (2,2)
+
+testShape2 = TD (LR X X) (LR X (TD X X)) -- Some weird shape with a 2x3 bounding box
+testBbox2 = bbox testShape2 -- Returns (2,3)
+testRect2 = rect testShape2 -- Returns Nothing because the shape is not a rectangle
